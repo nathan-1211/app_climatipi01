@@ -1,6 +1,8 @@
+import 'package:app_climatipi01/models/catalogo_item.dart';
+import 'package:app_climatipi01/screen/clima_atual.dart';
+import 'package:app_climatipi01/screen/detalhes_avancados.dart';
+import 'package:app_climatipi01/screen/previsao_semana.dart';
 import 'package:flutter/material.dart';
-import 'package:app_climatipi01/widgets/titulo_secao.dart';
-import 'package:app_climatipi01/widgets/item_detalhe.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,71 +18,84 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
       ),
-      home: Scaffold(
-        appBar: AppBar(title: Text('ClimaApp')),
-        body: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            // a) Cidade atual
-            TituloSecao(titulo: 'Cidade atual'),
-            Text(
-              'Santo André',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Quinta-feira, 15 de outubro',
-              style: TextStyle(fontSize: 16),
-            ),
+      home: HomeScreen(),
+    );
+  }
+}
 
-            Divider(),
+class HomeScreen extends StatelessWidget {
+  final List<CatalogoItem> secoes = [
+    CatalogoItem(
+      titulo: 'Clima atual',
+      icone: Icons.wb_sunny,
+      descricao: 'Temperatura e condições de agora',
+      destino: ClimaAtualScreen(),
+    ),
+    CatalogoItem(
+      titulo: 'Previsão da semana',
+      icone: Icons.calendar_month,
+      descricao: 'Os próximos dias em detalhe',
+      destino: PrevisaoSemanaScreen(),
+    ),
+    CatalogoItem(
+      titulo: 'Detalhes avançados',
+      icone: Icons.analytics,
+      descricao: 'Alertas, indicadores e tags',
+      destino: DetalhesAvancadosScreen(),
+    ),
+  ];
 
-            // b) Temperatura
-            TituloSecao(titulo: 'Temperatura'),
-            Text(
-              '26°C',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
+  // Sem "const": a lista secoes não é constante.
+  HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('ClimaApp')),
+      body: GridView.count(
+        crossAxisCount: 2,
+        padding: EdgeInsets.all(16),
+        crossAxisSpacing: 16,
+        childAspectRatio: 0.85,
+        children: secoes
+            .map(
+              (item) => GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => item.destino),
+                ),
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(item.icone, size: 48, color: Colors.blue),
+                        Text(
+                          item.titulo,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          item.descricao,
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            Text(
-              'Sensação térmica: 28°C',
-              style: TextStyle(fontSize: 16),
-            ),
-
-            Divider(),
-
-            // c) Condição do tempo
-            TituloSecao(titulo: 'Condição do tempo'),
-            Image.network(
-              'https://picsum.photos/id/1018/400/200',
-              height: 200,
-            ),
-
-            Divider(),
-
-            // d) Detalhes
-            TituloSecao(titulo: 'Detalhes'),
-            Row(
-  mainAxisAlignment: MainAxisAlignment.spaceAround,
-  children: [
-    ItemDetalhe(icone: Icons.water_drop, cor: Colors.blue, valor: '65%'),
-    ItemDetalhe(icone: Icons.air, cor: Colors.grey, valor: '12 km/h'),
-    ItemDetalhe(icone: Icons.umbrella, cor: Colors.indigo, valor: '30%'),
-  ],
-),
-
-            Divider(),
-
-            // e) Atualização
-            TituloSecao(titulo: 'Atualização'),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Atualizar'),
-            ),
-          ],
-        ),
+            )
+            .toList(),
       ),
     );
   }
